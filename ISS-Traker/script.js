@@ -71,3 +71,46 @@ findSatallite();
 //move the Satallite every 2 seconds
 setInterval(findSatallite, 2000);
 
+//asks user for their location 
+const userLoc = prompt('Please enter your location (e.g. city, country):')
+
+//get the user's location by API
+function getUserLocation() {
+  fetch(`https://nominatim.openstreetmap.org/search?q=${userLoc}&format=json`)
+    .then(response => response.json())
+    .then(data => {
+      const userLat = data[0].lat;
+      const userLong = data[0].lat;
+      const diff = calculateDistance(userLat, userLong, lat, long);
+      userLocation(diff);
+    })
+    .catch(e => console.log(e))
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = degRad(lat2 - lat1);
+  const dLon = degRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(degRad(lat1)) * Math.cos(degRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c; // Distance in km
+  return d.toFixed(2);
+}
+
+function degRad(deg) {
+  return deg * (Math.PI / 180)
+}
+
+function userLocation(diff) {
+  const body = document.getElementById('data');
+  const p = document.createElement('p');
+  const date = Date();
+  p.innerText = `At ${date}, ISS Satallite was approximately ${diff} away from you`;
+  body.appendChild(p);
+}
+
+getUserLocation();
+
+
